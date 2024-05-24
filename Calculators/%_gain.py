@@ -9,15 +9,14 @@ def calculate_return(performances):
     performances (dict): A dictionary of company names and performance percentages.
 
     Returns:
-    float: The total return percentage.
+    dict: A dictionary of company names and their performance, investment, and return.
     """
     # Initialize the total investment and the total return
     total_investment = 0
     total_return = 0
 
-    # Create a table
-    table = PrettyTable()
-    table.field_names = ["Company", "Performance", "Investment", "Return"]
+    # Create a dictionary to store the results
+    results = {}
 
     # Loop through the performances
     for company, performance in performances.items():
@@ -29,20 +28,36 @@ def calculate_return(performances):
         total_investment += investment
         total_return += return_
 
-        # Add a row to the table
-        table.add_row([company, f"{performance}%", f"{investment:.2f}", f"{return_:.2f}"])
+        # Add the results to the dictionary
+        results[company] = {"Performance": f"{performance}%", "Investment": f"{investment:.2f}", "Return": f"{return_:.2f}"}
 
     # Calculate the total return percentage
     total_return_percentage = (total_return - total_investment) / total_investment * 100
 
-    # Print the date
-    print(f"Date: {datetime.now().strftime('%d/%b/%Y')}")
+    # Add the total return percentage to the results dictionary
+    results["Total Return %"] = f"{total_return_percentage:.2f}%"
+
+    # Get the date
+    date = datetime.now().strftime('%d/%b/%Y')
+
+    # Create a table
+    table = PrettyTable()
+    table.field_names = ["Company", "Performance", "Investment", "Return", "Date", "Total Return %"]
+
+    # Add rows to the table from the results dictionary
+    companies = list(performances.keys())
+    middle_index = len(companies) // 2
+    for i, company in enumerate(companies):
+        data = results[company]
+        if i == middle_index:
+            table.add_row([company, data["Performance"], data["Investment"], data["Return"], date, results["Total Return %"]])
+        else:
+            table.add_row([company, data["Performance"], data["Investment"], data["Return"], "", ""])
 
     # Print the table
     print(table)
 
-    return total_return_percentage
-
+    return results
 
 # Example usage:
 performances = {
@@ -51,5 +66,4 @@ performances = {
     "Bharat Electronics": 1.73, 
     "Bharat Dynamics": 6.51
 }
-total_return_percentage = calculate_return(performances)
-print(f"The total return percentage is {total_return_percentage:.2f}%.")
+results = calculate_return(performances)
